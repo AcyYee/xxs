@@ -1,0 +1,57 @@
+spring:
+  http:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/xxs_elmall_1801?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    driverClassName: com.mysql.jdbc.Driver
+    username: root
+    password: root
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat
+  data:
+    mongodb:
+      database: xxs_elmall_1801
+      username: xxs
+      password: xxsmall1801
+      port: 27017
+      host: localhost
+
+#  redis:
+#    database: 0
+#    host: 192.168.0.58
+#    port: 6379
+#    password:
+#    pool:
+#      max-active: 8
+#      # 连接池最大阻塞等待时间（使用负值表示没有限制）
+#      max-wait: -1
+#      # 连接池中的最大空闲连接
+#      max-idle: 8
+#      # 连接池中的最小空闲连接
+#      min-idle: 0
+#      # 连接超时时间（毫秒）
+#    timeout: 0
+wx:
+  appid: wxb436d60d857a517c
+  secret: efa2aeb37f7c8560956134a97f80925e
+mybatis:
+  type-aliases-package: com.cwy.xxs.entity
+  mapper-locations: classpath:mapper/*.xml
