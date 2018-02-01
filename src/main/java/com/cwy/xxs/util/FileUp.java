@@ -10,11 +10,14 @@ import java.util.Date;
 
 /**
  * Update by acy on 2017/8/3.
+ * @author Acy
  */
 
 public class FileUp {
 
-    //图片类型文件
+    /**
+     * 图片类型
+     */
     public static final int IMAGE = 1;
     //音频类型文件
     public static final int AUDIO = 2;

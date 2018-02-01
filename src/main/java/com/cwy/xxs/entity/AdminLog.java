@@ -5,16 +5,16 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- * @author acy19
+ * @author Acy
  */
+@Document(collection = "admin_log_acy")
 @Data
-@Document(collection = "person_log_acy")
-public class PersonLog {
+public class AdminLog {
 
     @Id
     private String id;
 
-    private String personActive,remoteIP,createTime,personId,commodityId;
+    private String adminActive,remoteIP,createTime,adminId,commodityId;
 
     private Integer activeLevel,isDelete,activeType;
 

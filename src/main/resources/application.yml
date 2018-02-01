@@ -50,8 +50,10 @@ spring:
 #      # 连接超时时间（毫秒）
 #    timeout: 0
 wx:
-  appid: wxb436d60d857a517c
-  secret: efa2aeb37f7c8560956134a97f80925e
+  appid: wxdd5ea538e1adabb9
+  secret: 418919ecb079404c38d4399a5efb0683
 mybatis:
   type-aliases-package: com.cwy.xxs.entity
   mapper-locations: classpath:mapper/*.xml
+server:
+  display-name:

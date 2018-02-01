@@ -2,7 +2,6 @@ package com.cwy.xxs.vo;
 
 import lombok.Data;
 
-@Data
 public class ResultData {
 
     private int code;
@@ -47,4 +46,5 @@ public class ResultData {
     public void setObject(Object object) {
         this.object = object;
     }
+
 }

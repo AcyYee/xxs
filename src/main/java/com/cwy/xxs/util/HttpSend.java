@@ -3,6 +3,7 @@ package com.cwy.xxs.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -136,4 +137,13 @@ public class HttpSend {
         }
         return result.toString();
     }
+
+
+    public static String getRemoteIP(HttpServletRequest request) {
+        if (request.getHeader("x-forwarded-for")== null) {
+            return request.getRemoteAddr();
+        }
+        return request.getHeader("x-forwarded-for");
+    }
+
 }
