@@ -37,16 +37,16 @@ public interface PersonInfoService {
     ResultData wxfind(String id);
 
     /**
-     *
-     * @param id
-     * @param wxNico
-     * @param wxIcon
-     * @param wxGender
-     * @param wxProvince
-     * @param wxProvince1
-     * @param wxCity
-     * @param wxCountry
-     * @return
+     * 用户设置信息
+     * @param id 用户id
+     * @param wxNico 用户昵称
+     * @param wxIcon 用户头像
+     * @param wxGender 用户性别
+     * @param wxProvince 微信省
+     * @param ip 当前ip
+     * @param wxCity 微信城市
+     * @param wxCountry 微信国家
+     * @return 返回是否成功
      */
-    ResultData setUserInfo(String id, String wxNico, String wxIcon, String wxGender, String wxProvince, String wxProvince1, String wxCity, String wxCountry);
+    ResultData setUserInfo(String id, String wxNico, String wxIcon, String wxGender, String wxProvince, String wxCity, String wxCountry,String ip);
 }

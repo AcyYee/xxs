@@ -23,9 +23,14 @@ public class AdminInfoController {
         return adminInfoService.login(adminName,adminPassword,ip);
     }
 
-    @RequestMapping("sss")
+    @RequestMapping("add")
     public String data(String adminName,String adminPassword){
         return adminInfoService.add(adminName,adminPassword);
+    }
+
+    @RequestMapping("getQRCode")
+    public ResultData getQRCode(String path){
+        return adminInfoService.getQRCode(path);
     }
 
 }

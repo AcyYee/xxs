@@ -1,5 +1,6 @@
 package com.cwy.xxs.util;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import sun.misc.BASE64Decoder;
 
 import javax.crypto.BadPaddingException;
@@ -9,16 +10,14 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.AlgorithmParameterSpec;
+import java.security.*;
+import java.security.spec.InvalidParameterSpecException;
 
 public class WXDecrypt {
 
     private final static BASE64Decoder DECODER = new BASE64Decoder();
 
-    public static byte[] decrypt(String sessionKey,String iv, String encryptedData) {
+    public static byte[] decrypt(String sessionKey, String iv, String encryptedData) {
         byte[] encrypData = new byte[0];
         byte[] ivData = new byte[0];
         byte[] sessionKeyDE = new byte[0];
@@ -29,17 +28,21 @@ public class WXDecrypt {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        AlgorithmParameterSpec ivSpec = new IvParameterSpec(ivData);
+        Security.addProvider(new BouncyCastleProvider());
         Cipher cipher = null;
+        AlgorithmParameters params = null;
         try {
-            cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            params = AlgorithmParameters.getInstance("AES");
+            params.init(new IvParameterSpec(ivData));
+            cipher = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC");
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException | InvalidParameterSpecException e) {
             e.printStackTrace();
             return null;
         }
+
         SecretKeySpec keySpec = new SecretKeySpec(sessionKeyDE, "AES");
         try {
-            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, params);
         } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
             return null;

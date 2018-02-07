@@ -14,4 +14,6 @@ public interface AdminInfoService {
     ResultData login(String adminName, String adminPassword, String ip);
 
     String add(String adminName, String adminPassword);
+
+    ResultData getQRCode(String path);
 }

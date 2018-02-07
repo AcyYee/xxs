@@ -15,6 +15,10 @@ public class WXLoginConfig {
 
     private String secret;
 
+    private String appId;
+
+    private String appSecret;
+
     private static String WX_PAY_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";
 
     public String getAppid() {
@@ -33,11 +37,38 @@ public class WXLoginConfig {
         this.secret = secret;
     }
 
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public String getAppSecret() {
+        return appSecret;
+    }
+
+    public void setAppSecret(String appSecret) {
+        this.appSecret = appSecret;
+    }
+
     public String getThisLoginURL(String code){
         String wxLoginUrl = "https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code";
         wxLoginUrl = wxLoginUrl.replaceFirst("JSCODE",code);
         wxLoginUrl = wxLoginUrl.replaceFirst("APPID",appid);
         return wxLoginUrl.replaceFirst("SECRET",secret);
+    }
+
+    public String getAccessTokenURL(){
+        String wxUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET";
+        wxUrl = wxUrl.replaceFirst("APPID",appId);
+        return wxUrl.replaceFirst("APPSECRET",appSecret);
+    }
+
+    public String getQRCode(String accessToken){
+        String wxUrl = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN";
+        return wxUrl.replaceFirst("ACCESS_TOKEN",accessToken);
     }
 
 }

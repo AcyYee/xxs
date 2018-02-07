@@ -33,7 +33,8 @@ spring:
       password: xxsmall1801
       port: 27017
       host: localhost
-
+  jackson:
+    serialization: true
 #  redis:
 #    database: 0
 #    host: 192.168.0.58
@@ -51,9 +52,9 @@ spring:
 #    timeout: 0
 wx:
   appid: wxdd5ea538e1adabb9
-  secret: 418919ecb079404c38d4399a5efb0683
+  secret: 3d553ca721c42d083a57149869b67748
+  appId: wxd45548f62c808bd9
+  appSecret: be2a9270d3d66f07dcb526894c9e5890
 mybatis:
   type-aliases-package: com.cwy.xxs.entity
   mapper-locations: classpath:mapper/*.xml
-server:
-  display-name:

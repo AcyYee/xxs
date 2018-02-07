@@ -8,7 +8,7 @@ import java.security.MessageDigest;
 public abstract class BaseMD5Tools
 {
 
-    public final static String PASSWORD_STRING = "xianxiaosheng";
+    private final static String PASSWORD_STRING = "xianxiaosheng";
 
     public static String getMD5(String pwd) {
         //用于加密的字符
@@ -18,16 +18,12 @@ public abstract class BaseMD5Tools
             pwd += PASSWORD_STRING;
             //使用平台的默认字符集将此 String 编码为 byte序列，并将结果存储到一个新的 byte数组中
             byte[] btInput = pwd.getBytes();
-
             //信息摘要是安全的单向哈希函数，它接收任意大小的数据，并输出固定长度的哈希值。
             MessageDigest mdInst = MessageDigest.getInstance("MD5");
-
             //MessageDigest对象通过使用 update方法处理数据， 使用指定的byte数组更新摘要
             mdInst.update(btInput);
-
             // 摘要更新之后，通过调用digest（）执行哈希计算，获得密文
             byte[] md = mdInst.digest();
-
             // 把密文转换成十六进制的字符串形式
             int j = md.length;
             char str[] = new char[j * 2];
@@ -38,7 +34,6 @@ public abstract class BaseMD5Tools
             }
             //返回经过加密后的字符串
             return new String(str);
-
         } catch (Exception e) {
             return null;
         }

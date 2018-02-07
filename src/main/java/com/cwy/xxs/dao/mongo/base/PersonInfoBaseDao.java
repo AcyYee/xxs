@@ -11,7 +11,7 @@ public interface PersonInfoBaseDao extends MongoRepository<PersonInfo,String> {
     @Query(value = "{\"openid\":?0}")
     PersonInfo findByOpenid(String openid);
 
-    @Query(value = "{\"id\":?0}",fields = "{\"id\":1,\"vipLevel\":1}")
+    @Query(value = "{\"id\":?0}",fields = "{\"id\":1,\"vipLevel\":1,\"wxNico\":1,\"wxIcon\":1,\"wxGender\":1,\"wxProvince\":1,\"wxCity\":1}")
     PersonInfo findByIdOR(String openid);
 
 }

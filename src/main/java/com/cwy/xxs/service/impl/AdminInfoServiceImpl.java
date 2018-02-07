@@ -1,15 +1,23 @@
 package com.cwy.xxs.service.impl;
 
+import com.cwy.xxs.config.WXLoginConfig;
 import com.cwy.xxs.dao.mongo.base.AdminInfoBaseDao;
 import com.cwy.xxs.dao.mongo.base.AdminLogBaseDao;
 import com.cwy.xxs.entity.AdminInfo;
 import com.cwy.xxs.entity.AdminLog;
 import com.cwy.xxs.service.AdminInfoService;
 import com.cwy.xxs.util.BaseMD5Tools;
+import com.cwy.xxs.util.HttpSend;
+import com.cwy.xxs.util.JsonUtil;
 import com.cwy.xxs.util.TimeUtil;
 import com.cwy.xxs.vo.ResultData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 import static com.cwy.xxs.config.LogConfig.ADMIN_LOGIN;
 import static com.cwy.xxs.config.LogConfig.LOG_INFO;
@@ -20,8 +28,13 @@ import static com.cwy.xxs.config.LogConfig.LOG_INFO;
 @Service
 public class AdminInfoServiceImpl implements AdminInfoService {
 
+    private Logger logger = LoggerFactory.getLogger(AdminInfoServiceImpl.class);
+
     @Autowired
     private AdminInfoBaseDao adminInfoBaseDao;
+
+    @Autowired
+    private WXLoginConfig wxLoginConfig;
 
     @Autowired
     private AdminLogBaseDao adminLogBaseDao;
@@ -68,4 +81,24 @@ public class AdminInfoServiceImpl implements AdminInfoService {
         return adminInfo.toString();
     }
 
+    @Override
+    public ResultData getQRCode(String path) {
+        String json = HttpSend.sendGet(wxLoginConfig.getAccessTokenURL(),"");
+        String accessToken = null;
+        try {
+            HashMap map = JsonUtil.MAPPER.readValue(json,HashMap.class);
+            accessToken = (String) map.get("access_token");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String url = wxLoginConfig.getQRCode(accessToken);
+        String result = HttpSend.sendPostJson(url, "{\"path\":\""+ path+"\"}");
+        try {
+            HashMap map = JsonUtil.MAPPER.readValue(result,HashMap.class);
+            return new ResultData(2000,"",map);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

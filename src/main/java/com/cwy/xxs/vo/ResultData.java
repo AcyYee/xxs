@@ -1,6 +1,6 @@
 package com.cwy.xxs.vo;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class ResultData {
 
@@ -8,6 +8,7 @@ public class ResultData {
 
     private String message;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Object object;
 
     public ResultData(int code, String message, Object object) {

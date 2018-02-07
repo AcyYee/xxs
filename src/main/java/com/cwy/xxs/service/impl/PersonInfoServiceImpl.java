@@ -11,6 +11,8 @@ import com.cwy.xxs.service.PersonInfoService;
 import com.cwy.xxs.util.HttpSend;
 import com.cwy.xxs.util.TimeUtil;
 import com.cwy.xxs.vo.ResultData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,8 @@ public class PersonInfoServiceImpl implements PersonInfoService {
 
     @Autowired
     private PersonLogBaseDao personLogBaseDao;
+
+    private final Logger logger = LoggerFactory.getLogger(PersonInfoServiceImpl.class);
 
     @Override
     public ResultData wxLogin(String code, String ip) {
@@ -70,6 +74,7 @@ public class PersonInfoServiceImpl implements PersonInfoService {
                     personInfo.setSessionKey(null);
                     writeLog(personInfo.getId(),ip,dateTime,LOG_WARING,PERSON_REGISTER,null,"用户注册");
                 }else {
+                    personInfo.setSessionKey(result.get("session_key").toString());
                     personInfo.setLastLoginTime(dateTime);
                     personInfo.setLastLoginIP(ip);
                     personInfo = personInfoBaseDao.save(personInfo);
@@ -85,17 +90,19 @@ public class PersonInfoServiceImpl implements PersonInfoService {
 
     @Override
     public ResultData registerVIP(String id, String userPhone, String phoneCode, String realName, String userAddress, String ip) {
-        boolean isEmpty = (id == null && userPhone == null) || phoneCode==null || realName ==null || userAddress == null;
+        boolean isEmpty = id == null || phoneCode==null || realName ==null || userAddress == null;
         if(isEmpty){
             return new ResultData(1004,"数据有空");
         }
         String dateTime = TimeUtil.getDateTime(TimeUtil.FormatType.TO_SEC);
         Sort orders = new Sort(new Sort.Order(Sort.Direction.DESC,"createTime"));
         PhoneCode code;
-        if(id == null) {
-            code = phoneCodeBaseDao.findByPhoneAndCode(userPhone, phoneCode, dateTime, orders);
+        String info = id + userPhone+dateTime+realName+userAddress;
+        logger.info(info);
+        if(userPhone != null) {
+            code = phoneCodeBaseDao.findByPhoneAndCode(userPhone, phoneCode, dateTime,3, orders);
         }else {
-            code = phoneCodeBaseDao.findByPersonAndCode(id, phoneCode, dateTime, orders);
+            code = phoneCodeBaseDao.findByPersonAndCode(id, phoneCode, dateTime,3 ,orders);
         }
         if (code == null){
             return new ResultData(1004,"验证码有误");
@@ -107,7 +114,7 @@ public class PersonInfoServiceImpl implements PersonInfoService {
         code.setIsUsed(1);
         code.setIsDelete(1);
         phoneCodeBaseDao.save(code);
-        personInfo.setMobilePhone(userPhone);
+        personInfo.setMobilePhone(code.getPhoneNumber());
         personInfo.setVipLevel(1);
         personInfo.setUpdateTime(dateTime);
         personInfo.setUserAddress(userAddress);

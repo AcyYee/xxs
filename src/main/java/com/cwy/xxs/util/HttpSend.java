@@ -4,10 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -136,6 +134,66 @@ public class HttpSend {
             }
         }
         return result.toString();
+    }
+
+    //post请求方法
+    public static String sendPostJson(String url, String data) {
+        OutputStreamWriter out = null;
+        BufferedReader reader = null;
+        StringBuilder response= new StringBuilder();
+        try {
+            //HTTP URL类 用这个类来创建连接
+            URL httpUrl = null;
+            //创建URL
+            httpUrl = new URL(url);
+            //建立连接
+            HttpURLConnection conn = (HttpURLConnection) httpUrl.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("connection", "keep-alive");
+            //设置不要缓存
+            conn.setUseCaches(false);
+            conn.setInstanceFollowRedirects(true);
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.connect();
+            //POST请求
+            out = new OutputStreamWriter(
+                    conn.getOutputStream());
+            out.write(data);
+            out.flush();
+            //读取响应
+            reader = new BufferedReader(new InputStreamReader(
+                    conn.getInputStream()));
+            String lines;
+            while ((lines = reader.readLine()) != null) {
+                lines = new String(lines.getBytes(), "utf-8");
+                response.append(lines);
+            }
+            reader.close();
+            // 断开连接
+            conn.disconnect();
+            logger.info(response.toString());
+        } catch (Exception e) {
+            System.out.println("发送 POST 请求出现异常！"+e);
+            e.printStackTrace();
+        }
+        //使用finally块来关闭输出流、输入流
+        finally{
+            try{
+                if(out!=null){
+                    out.close();
+                }
+                if(reader!=null){
+                    reader.close();
+                }
+            }
+            catch(IOException ex){
+                ex.printStackTrace();
+            }
+        }
+
+        return response.toString();
     }
 
 
