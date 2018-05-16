@@ -17,31 +17,41 @@ public class FileUp {
 
     /**
      * 图片类型
+     *
      */
     public static final int IMAGE = 1;
-    //音频类型文件
+
+    /**
+     *  音频类型文件
+     */
     public static final int AUDIO = 2;
-    //视频类型文件
+    /**
+     * 视频类型文件
+     */
+
     public static final int VIDEO = 3;
-    //文档类型文件
+    /**
+     * 文档类型文件
+     */
     public static final int DOCUMENT = 4;
-    //其他类型文件
+    /**
+     * 其他类型文件
+     */
     public static final int OTHER = 5;
 
     
-    private static int index=0;
     /**
      * 实现SpringMVC中文件的上传的功能
      *
      * @param files     上传的文件,类型:MultipartFile
      * @param dirNames  文件夹名,多层文件夹名用,号隔开例如:"1,2,3"
-     * @param type      类型 图片为1,音频为2,视频为3,文档为4,其他为5 可使用类内的静态变量
+     * @param types      类型 图片为1,音频为2,视频为3,文档为4,其他为5 可使用类内的静态变量
      * @param isNewName 是否使用新文件名 boolean 是为true
      * 返回(文件夹名和文件名)或者空 例如:["/dsda/1.jpg","/dsda/2.jpg","/dsda/3.jpg"]
      */
-    public static void upFiles(MultipartFile[] files, HttpServletRequest request, String dirNames, int type, boolean isNewName, ResultData[] rs) {
+    public static void upFiles(MultipartFile[] files, HttpServletRequest request, String dirNames, Integer[] types, boolean isNewName, ResultData[] rs) {
         for (int i = 0; i < files.length; i++) {
-            rs[i].setCode(upFile(files[i], request, dirNames, type, isNewName, rs[i]));
+            rs[i].setCode(upFile(files[i], request, dirNames, types[i], isNewName, rs[i]));
         }
     }
 
@@ -121,15 +131,15 @@ public class FileUp {
 
     private synchronized static String newFileName(int type, String postfix) {
     		if (type == IMAGE) {
-    			return "image" + TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE)+"-" + postfix;
+    			return "image" + TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE) + postfix;
     		} else if (type == AUDIO) {
-    			return "audio" + TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE)+"-"+ postfix;
+    			return "audio" + TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE)+ postfix;
     		} else if (type == VIDEO) {
-    			return "video" + TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE)+"-" + postfix;
+    			return "video" + TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE)+ postfix;
     		} else if (type == DOCUMENT) {
-    			return "document" + TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE)+"-" + postfix;
+    			return "document" + TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE) + postfix;
     		} else {
-    			return "file" +TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE)+"-" + postfix;
+    			return "file" +TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE) + postfix;
     		}
     }
 

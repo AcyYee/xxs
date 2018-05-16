@@ -2,6 +2,8 @@ package com.cwy.xxs.service;
 
 import com.cwy.xxs.vo.ResultData;
 
+import java.util.Map;
+
 /**
  * @author acy
  * @version 1.0
@@ -24,10 +26,17 @@ public interface PersonInfoService {
      * @param phoneCode 手机验证码
      * @param realName 真实名称
      * @param userAddress 用户地址
+     * @param fromId 表单id
      * @param ip ip地址
      * @return 返回结果
      */
-    ResultData registerVIP(String id, String userPhone, String phoneCode, String realName, String userAddress, String ip);
+    ResultData registerVIP(String id, String userPhone, String phoneCode, String realName, String userAddress, String fromId, String ip);
+
+    /**
+     * 获取vip用户列表
+     * @return 返回vip用户列表
+     */
+    ResultData getVips(Map<String,Object> map);
 
     /**
      * 获取信息
@@ -49,4 +58,6 @@ public interface PersonInfoService {
      * @return 返回是否成功
      */
     ResultData setUserInfo(String id, String wxNico, String wxIcon, String wxGender, String wxProvince, String wxCity, String wxCountry,String ip);
+
+    ResultData find(String id);
 }

@@ -99,6 +99,7 @@ public class HttpSend {
             conn.setRequestProperty("connection", "Keep-Alive");
             conn.setRequestProperty("user-agent",
                     "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            conn.setUseCaches(false);
             // 发送POST请求必须设置如下两行
             conn.setDoOutput(true);
             conn.setDoInput(true);
@@ -136,11 +137,74 @@ public class HttpSend {
         return result.toString();
     }
 
-    //post请求方法
-    public static String sendPostJson(String url, String data) {
+    public static  byte[] readInputStream(InputStream inputStream) throws IOException {
+        byte[] buffer = new byte[1024];
+        int len = 0;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        while((len = inputStream.read(buffer)) != -1) {
+            bos.write(buffer, 0, len);
+        }
+        bos.close();
+        return bos.toByteArray();
+    }
+
+    public static String sendPostJsonOR(String url, String data) {
+        OutputStreamWriter out = null;
+        BufferedReader in = null;
+        StringBuilder result = new StringBuilder("");
+        try {
+            //HTTP URL类 用这个类来创建连接
+            URL httpUrl = null;
+            //创建URL
+            httpUrl = new URL(url);
+            //建立连接
+            HttpURLConnection conn = (HttpURLConnection) httpUrl.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("connection", "keep-alive");
+            //设置不要缓存
+            conn.setUseCaches(false);
+            conn.setInstanceFollowRedirects(true);
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.connect();
+            //POST请求
+            out = new OutputStreamWriter(
+                    conn.getOutputStream());
+            out.write(data);
+            out.flush();
+            // 定义BufferedReader输入流来读取URL的响应
+            in = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+        } catch (Exception e) {
+            System.out.println("发送 POST 请求出现异常！"+e);
+            e.printStackTrace();
+        }
+        //使用finally块来关闭输出流、输入流
+        finally{
+            try{
+                if(out!=null){
+                    out.close();
+                }
+                if(in!=null){
+                    in.close();
+                }
+            }
+            catch(IOException ex){
+                ex.printStackTrace();
+            }
+
+        }
+        return result.toString();
+    }
+
+    public static void sendPostJson(String url, String data) {
         OutputStreamWriter out = null;
         BufferedReader reader = null;
-        StringBuilder response= new StringBuilder();
         try {
             //HTTP URL类 用这个类来创建连接
             URL httpUrl = null;
@@ -163,17 +227,21 @@ public class HttpSend {
             out.write(data);
             out.flush();
             //读取响应
-            reader = new BufferedReader(new InputStreamReader(
-                    conn.getInputStream()));
-            String lines;
-            while ((lines = reader.readLine()) != null) {
-                lines = new String(lines.getBytes(), "utf-8");
-                response.append(lines);
+
+            InputStream inputStream = conn.getInputStream();
+            //获取自己数组
+            byte[] getData = readInputStream(inputStream);
+
+            //文件保存位置
+            File saveDir = new File("F:\\SEO");
+            if(!saveDir.exists()){
+                saveDir.mkdirs();
             }
-            reader.close();
-            // 断开连接
-            conn.disconnect();
-            logger.info(response.toString());
+            File file = new File(saveDir+File.separator+"1.png");
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(getData);
+            fos.close();
+            inputStream.close();
         } catch (Exception e) {
             System.out.println("发送 POST 请求出现异常！"+e);
             e.printStackTrace();
@@ -192,8 +260,6 @@ public class HttpSend {
                 ex.printStackTrace();
             }
         }
-
-        return response.toString();
     }
 
 

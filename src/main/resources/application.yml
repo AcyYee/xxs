@@ -9,10 +9,10 @@ spring:
       enabled: true
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://localhost:3306/xxs_elmall_1801?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    url: jdbc:mysql://47.100.98.21:3306/xxs_elmall_1801?useUnicode=true&characterEncoding=utf-8&useSSL=false
     driverClassName: com.mysql.jdbc.Driver
     username: root
-    password: root
+    password: SQcwyz@1801Mysql
     initialSize: 5
     minIdle: 5
     maxActive: 20
@@ -32,7 +32,7 @@ spring:
       username: xxs
       password: xxsmall1801
       port: 27017
-      host: localhost
+      host: 47.100.98.21
   jackson:
     serialization: true
 #  redis:
@@ -52,9 +52,16 @@ spring:
 #    timeout: 0
 wx:
   appid: wxdd5ea538e1adabb9
-  secret: 3d553ca721c42d083a57149869b67748
+  secret: ca914858fdb93aa10bb2ddf1829a7404
+  mchId: 1498424542
+  mchKey: 1abc2abc3abc4abc5abc6abc7abc8abc
   appId: wxd45548f62c808bd9
   appSecret: be2a9270d3d66f07dcb526894c9e5890
 mybatis:
   type-aliases-package: com.cwy.xxs.entity
   mapper-locations: classpath:mapper/*.xml
+logging:
+  level:
+    com.cwy.xxs.dao.mybatis: debug
+    com.cwy.xxs.dao.mongo.base: debug
+  config: classpath:logback.xml

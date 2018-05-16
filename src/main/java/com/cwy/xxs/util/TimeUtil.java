@@ -7,10 +7,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * @author sunwuo
- * @version 2.0.0 by acy 170906
+ * @author acy
+ * @version 2.1.0 by acy 20180321
  *
- * 统一的时间传入传出为String传入格式为"2017-01-01 00:00:00"
+ * 统一的时间传入传出为String传入格式为"2018-01-01 00:00:00"
  * 添加格式时请添加一个私有的SimpleDateFormat和一个共有的静态变量并修改formatDate方法
  */
 
@@ -25,6 +25,25 @@ public class TimeUtil {
     private static final ThreadLocal<DateFormat>  SDF_COMMON_MS = ThreadLocal.withInitial(()-> new SimpleDateFormat("yyyyMMddHHmmss"));
 
     private static final ThreadLocal<DateFormat>  SDF_NONE_S = ThreadLocal.withInitial(()-> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S"));
+
+    /**
+     * 对比两个时间
+     * @param dateTime1 时间1
+     * @param dateTime2 时间2
+     * @return 返回前者是否小于后者
+     */
+    public static boolean comparingDate(String dateTime1, String dateTime2) {
+        Date date1 = null;
+        Date date2 = null;
+        try {
+            date1 = SDF_COMMON_S.get().parse(dateTime1);
+            date2 = SDF_COMMON_S.get().parse(dateTime2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return date1.getTime()<date2.getTime();
+    }
 
 
     public enum FormatType {
@@ -243,6 +262,24 @@ public class TimeUtil {
     }
 
     /**
+     * 对时间添加减少分钟
+     *
+     * @param dateTime       需要修改的时间
+     * @param addMinuteCount 需要增加减少的分钟
+     * @return 返回修改后的时间
+     */
+    public static Date getDateAddMinute(String dateTime, int addMinuteCount) {
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(SDF_COMMON_S.get().parse(dateTime));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        calendar.add(Calendar.MINUTE, +addMinuteCount);
+        return calendar.getTime();
+    }
+
+    /**
      * 对时间添加减少小时
      *
      * @param dateTime     需要修改的时间
@@ -316,6 +353,24 @@ public class TimeUtil {
         }
         calendar.add(Calendar.DATE, +addDayCount);
         return formatDate(type, calendar.getTime());
+    }
+
+    /**
+     * 对时间添加减少天数
+     *
+     * @param dateTime    需要修改的时间
+     * @param addDayCount 需要增加减少的天数
+     * @return 返回修改后的时间
+     */
+    public static Date getDateAddDay(String dateTime, int addDayCount) {
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(SDF_COMMON_S.get().parse(dateTime));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        calendar.add(Calendar.DATE, +addDayCount);
+        return calendar.getTime();
     }
 
     /**

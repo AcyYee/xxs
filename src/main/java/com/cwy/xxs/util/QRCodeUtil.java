@@ -4,13 +4,19 @@ import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.qrcode.QRCodeReader;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
 
@@ -30,35 +36,73 @@ public class QRCodeUtil {
     // LOGO高度  
     private static final int HEIGHT = 60;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(QRCodeUtil.class);
+
+
     /**
-     * 生成二维�?
-     *
-     * @param content      源内�?
-     * @param imgPath      生成二维码保存的路径
-     * @param needCompress 是否要压�?
-     * @return 返回二维码图�?
-     * @throws Exception
+     * 生成包含字符串信息的二维码图片
+     * @param outputStream 文件输出流路径
+     * @param content 二维码携带信息
+     * @param qrCodeSize 二维码图片大小
+     * @param imageFormat 二维码的格式
+     * @throws WriterException
+     * @throws IOException
      */
-    public static BufferedImage createImage(String content, String imgPath, boolean needCompress) throws Exception {
-        Hashtable<EncodeHintType,Object> hints = new Hashtable<>();
-        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-        hints.put(EncodeHintType.CHARACTER_SET, CHARSET);
-        hints.put(EncodeHintType.MARGIN, 1);
-        BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, QRCODE_SIZE, QRCODE_SIZE,hints);
-        int width = bitMatrix.getWidth();
-        int height = bitMatrix.getHeight();
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                image.setRGB(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+    public static boolean createQrCode(OutputStream outputStream, String content, int qrCodeSize, String imageFormat,String filePath) throws WriterException, IOException {
+        //设置二维码纠错级别ＭＡＰ
+        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<>();
+        // 矫错级别
+        hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        //创建比特矩阵(位矩阵)的QR码编码的字符串
+        BitMatrix byteMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, qrCodeSize, qrCodeSize, hintMap);
+        // 使BufferedImage勾画QRCode  (matrixWidth 是行二维码像素点)
+        int matrixWidth = byteMatrix.getWidth();
+        BufferedImage image = new BufferedImage(matrixWidth-200, matrixWidth-200, BufferedImage.TYPE_INT_RGB);
+        image.createGraphics();
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, matrixWidth, matrixWidth);
+        // 使用比特矩阵画并保存图像
+        graphics.setColor(Color.BLACK);
+        for (int i = 0; i < matrixWidth; i++){
+            for (int j = 0; j < matrixWidth; j++){
+                if (byteMatrix.get(i, j)){
+                    graphics.fillRect(i-100, j-100, 1, 1);
+                }
             }
         }
-        if (imgPath == null || "".equals(imgPath)) {
-            return image;
+        if (outputStream == null) {
+            File file = new File(filePath);
+            String builder = filePath + "/" +
+                    TimeUtil.getDateTime(TimeUtil.FormatType.TO_MS_NONE) +
+                    "." +
+                    imageFormat;
+            return file.mkdirs() && ImageIO.write(image, imageFormat, new File(builder));
+        }else {
+            return ImageIO.write(image, imageFormat, outputStream);
         }
-        // 插入图片  
-        QRCodeUtil.insertImage(image, imgPath, needCompress);
-        return image;
+    }
+
+    /**
+     * 读二维码并输出携带的信息
+     */
+    public static String readQrCode(InputStream inputStream) throws IOException{
+        //从输入流中获取字符串信息
+        BufferedImage image = ImageIO.read(inputStream);
+        //将图像转换为二进制位图源
+        LuminanceSource source = new BufferedImageLuminanceSource(image);
+        BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+        QRCodeReader reader = new QRCodeReader();
+        Result result = null ;
+        try {
+            result = reader.decode(bitmap);
+        } catch (ReaderException e) {
+            e.printStackTrace();
+            return null;
+        }
+        LOGGER.info(result.getText());
+        return  result.getText();
     }
 
     /**
@@ -104,51 +148,14 @@ public class QRCodeUtil {
         graph.dispose();
     }
 
-    /**
-     * 生成带logo二维码，并保存到磁盘
-     *
-     * @param content
-     * @param imgPath      logo图片
-     * @param destPath
-     * @param needCompress
-     * @throws Exception
-     */
-    public static void encode(String content, String imgPath, String destPath, boolean needCompress, String filename) throws Exception {
-        BufferedImage image = QRCodeUtil.createImage(content, imgPath, needCompress);
-        mkdirs(destPath);
-        ImageIO.write(image, FORMAT_NAME, new File(destPath + "/" + filename));
+
+
+    public static boolean encode(String content, OutputStream output) throws Exception {
+        return QRCodeUtil.createQrCode(output,content,QRCODE_SIZE,"jpg" ,null);
     }
 
-    public static void mkdirs(String destPath) {
-        File file = new File(destPath);
-        // 当文件夹不存在时，mkdirs会自动创建多层目录，区别于mkdir(mkdir如果父目录不存在则会抛出异常)
-        if (!file.exists() && !file.isDirectory()) {
-            if (!file.mkdirs()){
-                throw new RuntimeException("文件夹创建失败");
-            }
-        }
-    }  
-  
-  /*  public static void encode(String content, String imgPath, String destPath) throws Exception {  
-        QRCodeUtil.encode(content, imgPath, destPath, false);  
-    }  
-  
-    public static void encode(String content, String destPath, boolean needCompress) throws Exception {  
-        QRCodeUtil.encode(content, null, destPath, needCompress);  
-    }  
-  
-    public static void encode(String content, String destPath) throws Exception {  
-        QRCodeUtil.encode(content, null, destPath, false);  
-    }  */
-
-    public static void encode(String content, String imgPath, OutputStream output, boolean needCompress)
-            throws Exception {
-        BufferedImage image = QRCodeUtil.createImage(content, imgPath, needCompress);
-        ImageIO.write(image, FORMAT_NAME, output);
-    }
-
-    public static void encode(String content, OutputStream output) throws Exception {
-        QRCodeUtil.encode(content, null, output, false);
+    public static boolean encode(String content, String rootPath) throws Exception {
+        return QRCodeUtil.createQrCode(null,content,QRCODE_SIZE,"jpg",rootPath);
     }
 
 

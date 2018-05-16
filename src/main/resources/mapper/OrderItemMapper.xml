@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cwy.xxs.dao.mybatis.OrderItemMapper">
+
+  <resultMap id="BaseResultMap" type="com.cwy.xxs.entity.OrderItem">
+    <id column="item_id" jdbcType="INTEGER" property="itemId" />
+    <result column="item_price" jdbcType="DECIMAL" property="itemPrice" />
+    <result column="specification_id" jdbcType="INTEGER" property="specificationId" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="shop_car_id" jdbcType="VARCHAR" property="shopCarId" />
+    <result column="item_count" jdbcType="INTEGER" property="itemCount" />
+    <result column="item_weight" jdbcType="INTEGER" property="itemWeight" />
+    <result column="item_type" jdbcType="INTEGER" property="itemType" />
+    <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+    <result column="update_time" jdbcType="VARCHAR" property="updateTime" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    item_id, item_price, specification_id, order_id, shop_car_id, item_count, item_type, item_weight,
+    create_time,update_time
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from order_item_acy_t
+    where item_id = #{itemId,jdbcType=INTEGER}
+  </select>
+
+  <select id="findBySpecificationAndShopCar" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from order_item_acy_t
+    where specification_id = #{specificationId,jdbcType=INTEGER}
+    and shop_car_id = #{shopCarId,jdbcType=VARCHAR}
+  </select>
+
+  <select id="findByOrderId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from order_item_acy_t
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" parameterType="com.cwy.xxs.entity.OrderItem" useGeneratedKeys="true" keyProperty="itemId" keyColumn="item_id">
+    insert into order_item_acy_t (item_price, specification_id,
+      shop_car_id, item_count,item_weight,item_type,order_id,
+      create_time,update_time)
+    values (#{itemPrice,jdbcType=DECIMAL}, #{specificationId,jdbcType=INTEGER},
+      #{shopCarId,jdbcType=VARCHAR}, #{itemCount,jdbcType=INTEGER}, #{itemWeight,jdbcType=INTEGER},#{itemType,jdbcType=INTEGER},
+      #{orderId,jdbcType=VARCHAR},#{createTime,jdbcType=VARCHAR},#{createTime,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.cwy.xxs.entity.OrderItem">
+    update order_item_acy_t
+    <set>
+      <if test="itemPrice != null">
+        item_price = #{itemPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="specificationId != null">
+        specification_id = #{specificationId,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="shopCarId != null">
+        shop_car_id = #{shopCarId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemCount != null">
+        item_count = #{itemCount,jdbcType=INTEGER},
+      </if>
+      <if test="itemType != null">
+        item_type = #{itemType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where item_id = #{itemId,jdbcType=INTEGER}
+  </update>
+
+  <update id="updateCountByPrimaryKey" parameterType="com.cwy.xxs.entity.OrderItem">
+    update order_item_acy_t
+    set item_price = #{itemPrice,jdbcType=DECIMAL},
+      item_count = #{itemCount,jdbcType=INTEGER}
+    where item_id = #{itemId,jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteByIds">
+    delete from order_item_acy_t where item_id IN
+    <foreach item="itemId" index="index" collection="itemIds" open="(" separator="," close=")">
+      #{itemId}
+    </foreach>
+  </delete>
+
+  <update id="updateOrderByIds">
+    update order_item_acy_t 
+    set order_id = #{orderId}, shop_car_id = null where item_id IN
+    <foreach item="itemId" index="index" collection="itemIds" open="(" separator="," close=")">
+      #{itemId}
+    </foreach>
+  </update>
+
+  <select id="findItemCounts" parameterType="Map" resultType="Integer">
+    select
+    count(item_id)
+    from order_item_acy_t
+    where item_type &gt; 0
+    <if test="orderId != null">
+      and order_id = #{orderId}
+    </if>
+    <if test="shopCarId != null">
+      and shop_car_id = #{shopCarId}
+    </if>
+  </select>
+
+  <resultMap id="ListResultMap" type="com.cwy.xxs.vo.OrderItemModel">
+    <id column="item_id" jdbcType="INTEGER" property="itemId" />
+    <result column="item_price" jdbcType="DECIMAL" property="itemPrice" />
+    <result column="specification_price" jdbcType="DECIMAL" property="specificationPrice" />
+    <result column="specification_name" jdbcType="VARCHAR" property="specificationName" />
+    <result column="specification_id" jdbcType="INTEGER" property="specificationId" />
+    <result column="is_discount" jdbcType="INTEGER" property="isDiscount" />
+    <result column="is_activity" jdbcType="INTEGER" property="isActivity" />
+    <result column="image_path" jdbcType="VARCHAR" property="imagePath" />
+    <result column="commodity_id" jdbcType="VARCHAR" property="commodityId" />
+    <result column="item_count" jdbcType="INTEGER" property="itemCount" />
+  </resultMap>
+
+  <select id="findItems" parameterType="Map" resultMap="ListResultMap">
+    select
+    oi.item_id,oi.item_price,oi.specification_id,cs.specification_name,cs.specification_price,cs.image_path,oi.item_count,cs.commodity_id
+    from order_item_acy_t oi
+    LEFT JOIN commodity_specification_acy_t cs on oi.specification_id = cs.specification_id
+    where oi.item_type &gt; 0
+    <if test="orderId != null">
+      and oi.order_id = #{orderId}
+    </if>
+    <if test="shopCarId != null">
+      and oi.shop_car_id = #{shopCarId}
+    </if>
+    ORDER BY oi.item_id
+    <if test="pageModel!=null">
+      limit #{pageModel.firstLimitParam} , #{pageModel.pageSize}
+    </if>
+  </select>
+
+</mapper>

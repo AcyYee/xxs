@@ -14,8 +14,8 @@ public class PersonInfo {
     @Id
     private String id;
 
-    private String createTime,wxGender,wxProvince,wxCity,wxCountry,lastLoginIP,updateTime,lastLoginTime,mobilePhone,userAddress,wxNico,wxIcon,realName,openid,sessionKey;
+    private String formId,createTime,wxGender,wxProvince,wxCity,wxCountry,lastLoginIP,updateTime,lastLoginTime,mobilePhone,userAddress,wxNico,wxIcon,realName,openid,sessionKey;
 
-    private Integer isDelete,vipLevel;
+    private Integer isDelete,vipLevel,vipGrade;
 
 }

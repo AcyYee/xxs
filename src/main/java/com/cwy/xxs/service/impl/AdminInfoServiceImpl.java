@@ -30,21 +30,25 @@ public class AdminInfoServiceImpl implements AdminInfoService {
 
     private Logger logger = LoggerFactory.getLogger(AdminInfoServiceImpl.class);
 
-    @Autowired
-    private AdminInfoBaseDao adminInfoBaseDao;
+    private final AdminInfoBaseDao adminInfoBaseDao;
+
+    private final WXLoginConfig wxLoginConfig;
+
+    private final AdminLogBaseDao adminLogBaseDao;
 
     @Autowired
-    private WXLoginConfig wxLoginConfig;
-
-    @Autowired
-    private AdminLogBaseDao adminLogBaseDao;
+    public AdminInfoServiceImpl(AdminInfoBaseDao adminInfoBaseDao, WXLoginConfig wxLoginConfig, AdminLogBaseDao adminLogBaseDao) {
+        this.adminInfoBaseDao = adminInfoBaseDao;
+        this.wxLoginConfig = wxLoginConfig;
+        this.adminLogBaseDao = adminLogBaseDao;
+    }
 
     @Override
     public ResultData login(String adminName, String adminPassword, String ip) {
         if (adminName == null || adminPassword == null){
             return new ResultData(1004,"数据错误");
         }
-        AdminInfo adminInfo = adminInfoBaseDao.findByNameAndPassword(adminName,adminPassword);
+        AdminInfo adminInfo = adminInfoBaseDao.findByNameAndPassword(adminName,BaseMD5Tools.getMD5(adminPassword));
         if (adminInfo == null){
             return new ResultData(1004,"用户名密码错误");
         }
@@ -83,22 +87,15 @@ public class AdminInfoServiceImpl implements AdminInfoService {
 
     @Override
     public ResultData getQRCode(String path) {
-        String json = HttpSend.sendGet(wxLoginConfig.getAccessTokenURL(),"");
         String accessToken = null;
         try {
-            HashMap map = JsonUtil.MAPPER.readValue(json,HashMap.class);
-            accessToken = (String) map.get("access_token");
+            accessToken = WXLoginConfig.getAccessToken(wxLoginConfig);
         } catch (IOException e) {
             e.printStackTrace();
+            return ResultData.returnResultData(-1,"accessToken获取出错");
         }
         String url = wxLoginConfig.getQRCode(accessToken);
-        String result = HttpSend.sendPostJson(url, "{\"path\":\""+ path+"\"}");
-        try {
-            HashMap map = JsonUtil.MAPPER.readValue(result,HashMap.class);
-            return new ResultData(2000,"",map);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        HttpSend.sendPostJson(url, "{\"path\": \"pages/register/register\", \"width\": 430}");
+        return new ResultData(2000,"");
     }
 }
